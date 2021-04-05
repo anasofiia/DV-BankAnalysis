@@ -1,0 +1,154 @@
+---
+title: "Analysis Potential Customer Bank Portugal"
+author : "Ana Sofia Noviandari"
+date   : "April 5, 2021"
+output: html_document
+theme : yeti
+highlight : espresso
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+bank <- read.csv("bank-full.csv", sep = ";")
+head(bank)
+```
+
+```{r}
+str(bank)
+summary(bank)
+
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggforce)
+library(tidyverse)
+
+```
+
+
+```{r}
+ggplot(data = bank, aes(x= age,))+
+  geom_histogram(bins = 35, binwidth = 4, color = "black", fill = "maroon" )+
+  labs(title="Customer Age Distribution",x="Age(years)", y = "Count",
+       subtitle = "yellow line indicate average Age")+
+  scale_x_continuous(breaks = seq(0,100,10))+
+  geom_vline(xintercept = mean(bank$age), color = "yellow", linetype = 5)
+
+```
+```{r}
+ggplot(bank, aes(x= marital, y = housing))+
+  geom_col(fill= "blue")+
+  ggtitle("Housing and Marital")
+```
+
+
+```{r}
+ggplot(data = bank, aes(x=education))+
+  geom_bar(fill = "dark blue")+ ggtitle("Subscription based on Education Level")+ 
+  xlab(" Education Level")+
+  guides(fill=guide_legend(title="Subscription of Term Deposit"))
+```
+
+```{r}
+ggplot(bank, aes(x=duration, y=balance)) +
+  facet_grid(cols = vars(y)) +
+  geom_point(shape=1, color = "purple")+
+  ggtitle("Duration VS Balance")
+```
+
+
+
+```{r}
+bank %>% 
+  group_by(education, job) 
+
+
+ggplot(bank, aes(education, balance, fill = job ))+
+  geom_bar(stat="identity", position = "dodge")+
+  scale_fill_brewer(palette = "Paired")
+  
+  
+```
+
+
+
+
+
+```{r}
+bank <- bank %>% 
+  mutate(age_group=
+      case_when(
+      age > 20 & age <= 25 ~ "20-25",
+      age > 25 & age <= 30 ~ "25-30",
+      age > 30 & age <= 35 ~ "30-35",
+      age > 35 & age <= 40 ~ "35-40",
+      age > 40 & age <= 45 ~ "40-45",
+      age > 45 & age <= 50 ~ "45-50",
+      age > 50 & age <= 55 ~ "50-55",
+      age > 55             ~ "above 55"
+    )
+  ) %>% 
+   count(age_group, loan)
+
+# calculate the start and end angles for each pie
+bank_pies <- left_join(bank,
+                      bank %>% 
+                        group_by(age_group) %>%
+                        summarize(n_total = sum(n))) %>%
+  group_by(age_group) %>%
+  mutate(end_angle = 2*pi*cumsum(n)/n_total,      # ending angle for each pie slice
+         start_angle = lag(end_angle, default = 0),   # starting angle for each pie slice
+         mid_angle = 0.5*(start_angle + end_angle))   # middle of each pie slice, for the text label
+
+rpie = 1 # pie radius
+rlabel = 0.6 * rpie # radius of the labels; a number slightly larger than 0.5 seems to work better,
+                    # but 0.5 would place it exactly in the middle as the question asks for.ks for.
+# draw the pies
+ggplot(bank_pies) + 
+  geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0, r = rpie,
+                   start = start_angle, end = end_angle, fill = loan)) +
+  geom_text(aes(x = rlabel*sin(mid_angle), y = rlabel*cos(mid_angle), label = n),
+            hjust = 0.5, vjust = 0.5) +
+  coord_fixed() +
+  scale_x_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+  scale_y_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+  facet_wrap(~age_group)+
+  ggtitle("Loan By Age Group")
+
+bank
+```
+
+
+```{r}
+ggplot(bank, aes(x=age_group, y= balance, fill=age_group)) +
+    geom_boxplot() +
+    theme(
+      plot.title = element_text(size=14), 
+       ) +
+    ggtitle("Balance by Age Group") +
+    xlab("Years")+
+    ylab("Balance")
+```
+
+
+#Conclusions
+
+there is some insight that we can get from the plots:
+
+1. Customers with married marital status has more tendencies to housing
+2.  The Most Subscriptions Customers who have background secondary of education  level and the next position will be following by tertiary and then primary education levels
+3. we can get the insight from plot Duration VS Balance:
+  - The Customers with higher balance has shorter duration call to decides for subscription,
+  - The Customers who have a smaller balance needs extended duration call to decide on subscription,
+  - The Customers who do not want for a subscription they have shorter duration call then customers that going to say Yes to the subscription
+
+4. The insight from the plot Balance, Job, and education level, that shows the customer with the highest balance has a job in management field with tertiary education level and the customer with the lowest balance who has a job as a student with primary education level
+
+5. The last plot shows Segmentation of Loan Customers by Age,  Borrowers in Age Group 30-35 years is the highest group for the loan debt, And the second position of loan debt with adults aged 35 to 40, and the third position following by age 25-30 years old.
+
