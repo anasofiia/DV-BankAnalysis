@@ -126,7 +126,8 @@ bank
 
 
 ```{r}
-ggplot(bank, aes(x=age_group, y= balance, fill=age_group)) +
+
+ggplot(bank, aes(x=age_group, y= bank$balance, fill=age_group)) +
     geom_boxplot() +
     theme(
       plot.title = element_text(size=14), 
@@ -141,14 +142,16 @@ ggplot(bank, aes(x=age_group, y= balance, fill=age_group)) +
 
 there is some insight that we can get from the plots:
 
-1. Customers with married marital status has more tendencies to housing
+1. The Customers with married marital status has more tendencies to housing
 2.  The Most Subscriptions Customers who have background secondary of education  level and the next position will be following by tertiary and then primary education levels
 3. we can get the insight from plot Duration VS Balance:
   - The Customers with higher balance has shorter duration call to decides for subscription,
   - The Customers who have a smaller balance needs extended duration call to decide on subscription,
   - The Customers who do not want for a subscription they have shorter duration call then customers that going to say Yes to the subscription
 
-4. The insight from the plot Balance, Job, and education level, that shows the customer with the highest balance has a job in management field with tertiary education level and the customer with the lowest balance who has a job as a student with primary education level
+4. The insight from the plot Balance, Job, and education level, that shows the customer with the highest balance has a job in management field with tertiary education level and the customer with the lowest balances who has a job as a student with primary education level
 
-5. The last plot shows Segmentation of Loan Customers by Age,  Borrowers in Age Group 30-35 years is the highest group for the loan debt, And the second position of loan debt with adults aged 35 to 40, and the third position following by age 25-30 years old.
+5. The Loan by Age plot shows Segmentation of Loan Customers by Age,  Borrowers in Age Group 30-35 years is the highest group for the loan debt, And the second position of loan debt with adults aged 35 to 40, and the third position following by age 25-30 years old.
+
+6. The last plot shows the older individuals are likely to have higher balances in their savings accounts
 
